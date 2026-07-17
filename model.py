@@ -228,11 +228,74 @@ def conv2d_forward(x, weights, bias, stride, padding):
 
     return out, cache
 
-# Step 18 - conv2d_grad_input (not yet solved)
-# TODO: implement
+# Step 18 - conv2d_grad_input
+def conv2d_grad_input(d_out, cache):
+    """
+    Compute gradient with respect to the convolution input.
+    """
 
-# Step 19 - conv2d_grad_weights (not yet solved)
-# TODO: implement
+    x_shape = cache["x_shape"]
+    weights = cache["weights"]
+    stride = cache["stride"]
+    padding = cache["padding"]
+    kernel_h = cache["kernel_h"]
+    kernel_w = cache["kernel_w"]
+
+    C_out = weights.shape[0]
+
+    # Flatten filters
+    W_col = weights.reshape(C_out, -1)
+
+    # (N,C_out,H_out,W_out) -> (N*H_out*W_out, C_out)
+    d_out_col = d_out.transpose(0, 2, 3, 1).reshape(-1, C_out)
+
+    # Gradient wrt im2col matrix
+    d_cols = d_out_col @ W_col
+
+    # Fold back into image
+    dx = col2im(
+        d_cols,
+        x_shape,
+        kernel_h,
+        kernel_w,
+        stride,
+        padding
+    )
+
+    return dx
+
+# Step 19 - conv2d_grad_weights
+def conv2d_grad_weights(d_out, cache):
+    """
+    Compute gradient w.r.t convolution weights.
+
+    Inputs:
+    - d_out: Upstream gradient of shape (N, C_out, out_h, out_w)
+    - cache: Dictionary containing:
+        cols, weights, kernel_h, kernel_w
+
+    Returns:
+    - dW: Gradient wrt weights, shape (C_out, C_in, kH, kW)
+    """
+
+    cols = cache["cols"]
+    weights = cache["weights"]
+    kernel_h = cache["kernel_h"]
+    kernel_w = cache["kernel_w"]
+
+    C_out, C_in, _, _ = weights.shape
+
+    # Reshape upstream gradient:
+    # (N, C_out, out_h, out_w) -> (C_out, N*out_h*out_w)
+    d_out_col = d_out.transpose(1, 0, 2, 3).reshape(C_out, -1)
+
+    # Compute gradient wrt flattened weights
+    dW_col = d_out_col @ cols.T
+
+    # Reshape back to original weight shape
+    dW = dW_col.reshape(C_out, C_in, kernel_h, kernel_w)
+
+    return dW
 
 # Step 20 - conv2d_grad_bias (not yet solved)
 # TODO: implement
