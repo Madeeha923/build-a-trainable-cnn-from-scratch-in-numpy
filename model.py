@@ -267,15 +267,18 @@ def conv2d_grad_input(d_out, cache):
 # Step 19 - conv2d_grad_weights
 def conv2d_grad_weights(d_out, cache):
     """
-    Compute gradient w.r.t convolution weights.
+    Compute gradient with respect to convolution weights.
 
     Inputs:
-    - d_out: Upstream gradient of shape (N, C_out, out_h, out_w)
-    - cache: Dictionary containing:
-        cols, weights, kernel_h, kernel_w
+    - d_out: (N, C_out, out_h, out_w)
+    - cache: contains
+        cols
+        weights
+        kernel_h
+        kernel_w
 
     Returns:
-    - dW: Gradient wrt weights, shape (C_out, C_in, kH, kW)
+    - dW: (C_out, C_in, kernel_h, kernel_w)
     """
 
     cols = cache["cols"]
@@ -285,14 +288,14 @@ def conv2d_grad_weights(d_out, cache):
 
     C_out, C_in, _, _ = weights.shape
 
-    # Reshape upstream gradient:
-    # (N, C_out, out_h, out_w) -> (C_out, N*out_h*out_w)
-    d_out_col = d_out.transpose(1, 0, 2, 3).reshape(C_out, -1)
+    # (N, C_out, out_h, out_w)
+    # -> (N*out_h*out_w, C_out)
+    d_out_col = d_out.transpose(0, 2, 3, 1).reshape(-1, C_out)
 
-    # Compute gradient wrt flattened weights
-    dW_col = d_out_col @ cols.T
+    # (C_out, N*out_h*out_w) @ (N*out_h*out_w, C_in*kH*kW)
+    dW_col = d_out_col.T @ cols
 
-    # Reshape back to original weight shape
+    # Restore original filter shape
     dW = dW_col.reshape(C_out, C_in, kernel_h, kernel_w)
 
     return dW
