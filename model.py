@@ -552,8 +552,12 @@ def sgd_step(param, grad, lr):
     updated_param = param - lr * grad
     return updated_param
 
-# Step 37 - adam_update_m (not yet solved)
-# TODO: implement
+# Step 37 - adam_update_m
+import numpy as np
+
+def adam_update_m(m, grad, beta_one):
+    m = beta_one * m + (1 - beta_one) * grad
+    return m
 
 # Step 38 - adam_update_v (not yet solved)
 # TODO: implement
