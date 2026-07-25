@@ -567,8 +567,11 @@ def adam_update_v(v, grad, beta_two):
     v = beta_two * v + (1-beta_two) * (grad ** 2)
     return v
 
-# Step 39 - adam_bias_correct (not yet solved)
-# TODO: implement
+# Step 39 - adam_bias_correct
+def adam_bias_correct(moment, beta, t):
+    # TODO: return moment divided by (1 - beta**t) to undo Adam's zero-init bias.
+    cm = moment / (1-beta ** t)
+    return cm
 
 # Step 40 - adam_param_step (not yet solved)
 # TODO: implement
