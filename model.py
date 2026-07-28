@@ -997,8 +997,40 @@ def train_step(params, opt_state, xb, yb, lr, beta_one, beta_two, eps, step):
 
     return new_params, new_opt_state, loss
 
-# Step 57 - train_one_epoch (not yet solved)
-# TODO: implement
+# Step 57 - train_one_epoch
+def train_one_epoch(
+    params,
+    opt_state,
+    x_train,
+    y_train,
+    batch_size,
+    lr,
+    beta_one,
+    beta_two,
+    eps,
+    step_counter,
+    seed=0,
+):
+    losses = []
+
+    for xb, yb in iterate_minibatches(x_train, y_train, batch_size, seed):
+        step_counter += 1
+
+        params, opt_state, loss = train_step(
+            params,
+            opt_state,
+            xb,
+            yb,
+            lr,
+            beta_one,
+            beta_two,
+            eps,
+            step_counter,
+        )
+
+        losses.append(loss)
+
+    return params, opt_state, step_counter, losses
 
 # Step 58 - train_loop (not yet solved)
 # TODO: implement
