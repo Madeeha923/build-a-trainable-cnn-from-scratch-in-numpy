@@ -763,8 +763,43 @@ def lenet_forward(x, params):
 
     return logits, cache
 
-# Step 48 - backward_conv_block (not yet solved)
-# TODO: implement
+# Step 48 - backward_conv_block
+def backward_conv_block(dout, cache):
+    """
+    Backward pass for a Conv -> ReLU -> MaxPool block.
+
+    Inputs:
+    - dout: Upstream gradient from the block output
+    - cache: Dictionary containing:
+        'conv_cache'
+        'relu_cache'
+        'pool_cache'
+
+    Returns:
+    - dx: Gradient w.r.t. block input
+    - dW: Gradient w.r.t. convolution weights
+    - db: Gradient w.r.t. convolution bias
+    """
+
+    # MaxPool backward
+    dpool = maxpool2d_backward(
+        dout,
+        cache["pool_cache"]
+    )
+
+    # ReLU backward
+    drelu = relu_backward(
+        dpool,
+        cache["relu_cache"]
+    )
+
+    # Convolution backward
+    dx, dW, db = conv2d_backward(
+        drelu,
+        cache["conv_cache"]
+    )
+
+    return dx, dW, db
 
 # Step 49 - backward_classifier_block (not yet solved)
 # TODO: implement
