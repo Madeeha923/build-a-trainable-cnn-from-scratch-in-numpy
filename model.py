@@ -823,7 +823,10 @@ def backward_classifier_block(dlogits, cache):
     )
 
     # Flatten backward
-    dx = flatten_backward(d_out, cache)
+    dx = flatten_backward(
+        d_flat,
+        cache["flatten_cache"]
+    )
 
     return {
         "dx": dx,
