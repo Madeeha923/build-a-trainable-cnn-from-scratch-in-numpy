@@ -952,8 +952,50 @@ def iterate_minibatches(x, y, batch_size, seed=0):
 
         yield x[batch_idx], y[batch_idx]
 
-# Step 56 - train_step (not yet solved)
-# TODO: implement
+# Step 56 - train_step
+def train_step(params, opt_state, xb, yb, lr, beta_one, beta_two, eps, step):
+    import copy
+
+    # Work on copies so the original params/state are unchanged
+    new_params = copy.deepcopy(params)
+    new_opt_state = copy.deepcopy(opt_state)
+
+    # Forward pass
+    logits, caches = lenet_forward(xb, new_params)
+
+    # Loss
+    loss = softmax_cross_entropy_forward(logits, yb)
+
+    # Backward pass
+    dlogits = softmax_cross_entropy_backward(logits, yb)
+    grads = lenet_backward(dlogits, caches)
+
+    # Adam update
+    for layer in ["conv1", "conv2", "fc1", "fc2"]:
+        for pname in ["W", "b"]:
+            param = new_params[layer][pname]
+            grad = grads[layer]["d" + pname]
+
+            m = new_opt_state[layer][pname]["m"]
+            v = new_opt_state[layer][pname]["v"]
+
+            new_param, new_m, new_v = adam_step(
+                param,
+                grad,
+                m,
+                v,
+                step,
+                lr,
+                beta_one,
+                beta_two,
+                eps,
+            )
+
+            new_params[layer][pname] = new_param
+            new_opt_state[layer][pname]["m"] = new_m
+            new_opt_state[layer][pname]["v"] = new_v
+
+    return new_params, new_opt_state, loss
 
 # Step 57 - train_one_epoch (not yet solved)
 # TODO: implement
